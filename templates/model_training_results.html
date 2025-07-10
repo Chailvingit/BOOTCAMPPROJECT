@@ -9,7 +9,12 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(to right, #e0f2fe, #e3f2fd); /* Light blue gradient */
+            background: 
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+                url('/static/images/5d.png'); /* update path if needed */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
     </style>
 </head>
@@ -31,9 +36,7 @@
             <div class="mt-8">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Individual Model Performance:</h2>
                 <div class="space-y-4">
-                    {# Iterate through the 'models' dictionary passed from Flask #}
                     {% for model_name, metrics in models.items() %}
-                        {# Skip the 'best_model' key as it's handled separately #}
                         {% if model_name != 'best_model' %}
                             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-left">
                                 <h3 class="text-xl font-semibold text-blue-700 mb-2">{{ model_name }}</h3>
@@ -48,7 +51,6 @@
                     {% endfor %}
                 </div>
             </div>
-
         {% else %}
             <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg mb-6">
                 <p class="text-xl font-bold mb-2">Training Failed!</p>

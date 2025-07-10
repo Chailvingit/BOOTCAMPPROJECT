@@ -9,8 +9,8 @@ from datetime import datetime, timedelta
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor # New model import
-from sklearn.tree import DecisionTreeRegressor # New model import
+from sklearn.ensemble import RandomForestRegressor #ML IMPORT
+from sklearn.tree import DecisionTreeRegressor #ML MODEL IMPORT
 from sklearn.metrics import mean_squared_error, r2_score
 
 # Initialize the Flask application
@@ -51,7 +51,7 @@ def init_db():
         db = get_db()
         cursor = db.cursor()
 
-        # Create users table
+        #A USER TABLES
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,7 +60,7 @@ def init_db():
             )
         ''')
 
-        # Create sales_data table
+        #TABLE CREATE FOR SALES DATA
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS sales_data (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,7 +70,7 @@ def init_db():
         ''')
         db.commit()
 
-        # Populate sales_data table from CSV if it's empty
+        # POPULATE SALES DATA TABLE IF NOT EMPTY
         cursor.execute("SELECT COUNT(*) FROM sales_data")
         if cursor.fetchone()[0] == 0:
             print(f"Sales data table is empty. Attempting to load from {SALES_DATA_CSV_PATH}...")
@@ -90,7 +90,7 @@ def init_db():
     print("Database initialized or already exists.")
 
 
-# --- ML Model Loading and Training ---
+#MACHINE LEARNING TESTING AND TRAINING
 MODEL_PATH = 'sales_forecast_model.pkl'
 sales_model = None # Global variable to hold the loaded model
 
@@ -107,9 +107,9 @@ def load_sales_model():
         sales_model = None # Ensure model is None if not found
     except Exception as e:
         print(f"An error occurred while loading the model: {e}")
-        sales_model = None # Ensure model is None on error
+        sales_model = None #ENSURE MODEL NONE ERRORS
 
-# Call this function to load model when the app starts
+#TO LOAD MODEL PLEASE CALL THIS FUNCTION
 load_sales_model()
 
 def train_and_evaluate_model():
@@ -133,11 +133,11 @@ def train_and_evaluate_model():
     X = df_train[['Days']]
     y = df_train['Sales']
 
-    if len(X) < 2: # Need at least 2 data points for linear regression
+    if len(X) < 2: # ATLEAST 2 DATA POINTS.
         return {"error": "Not enough data points to train the model. Need at least 2.", "models": {}}
 
-    # Split into training and testing sets
-    # Ensure there's enough data for both train and test sets
+    #TRAINING & TESTING
+    #ENSURE THE TRAINING AND TESTING
     if len(X) > 1:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     else: # If only one data point, train on all of it
@@ -171,7 +171,7 @@ def train_and_evaluate_model():
                 "r2": r2_val
             }
 
-            # Track the best model based on R2 score
+            # TRACK THE BEST MODEL RESULT FOR R2
             # Convert R2 to float for comparison, handle "N/A"
             current_r2 = -float('inf')
             if isinstance(r2_val, str) and r2_val != "N/A":
@@ -192,10 +192,10 @@ def train_and_evaluate_model():
             model_results[name] = {"error": f"Training failed: {e}"}
             print(f"Error training {name}: {e}")
 
-    # Save the best performing model
+    # SAVE BEST MODEL FOR RESULTS ERROR
     if best_model_instance:
         joblib.dump(best_model_instance, MODEL_PATH)
-        sales_model = best_model_instance # Update the global model instance
+        sales_model = best_model_instance # UPDATE THE MODEL INSTANCE
         print(f"Best model ({best_model_name}) saved as {MODEL_PATH}")
         model_results["best_model"] = best_model_name
     else:
@@ -233,12 +233,13 @@ def get_forecast_data_from_db():
     historical_df['Days'] = (historical_df['Date'] - historical_df['Date'].min()).dt.days
 
     try:
-        # Determine the last date in the historical data
+        # TO DETERMINE THE LAST DATE OF THE DATA
         last_historical_date = historical_df['Date'].max()
         last_historical_day_index = historical_df['Days'].max()
 
-        # Define the number of days to forecast into the future
-        forecast_period_days = 30 # Forecast for the next 30 days
+        # NUMBER OF DAYS TO THE FORECAST
+        forecast_period_days = 30  # FORECAST IN THE NEXT 30DAYS
+    
 
         # Create future dates and their corresponding numerical 'Days' features
         future_days = np.array([last_historical_day_index + i for i in range(1, forecast_period_days + 1)]).reshape(-1, 1)
